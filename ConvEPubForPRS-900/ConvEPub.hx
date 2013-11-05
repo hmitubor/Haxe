@@ -62,7 +62,7 @@ class ConvEPub {
       }
 
       if ( found ) {
-	zip(target);
+	zip(tmpdir);
 	Sys.setCwd("../");
       }
       else {
@@ -76,7 +76,7 @@ class ConvEPub {
   private static function zip(target:String):Void {
     var paths  = new List<Path>();
     makeAllFileList(".", paths);
-    var zip = new Zip( "../" + target + "2" );
+    var zip = new Zip( withExtension("../" + target, "epub") );
     for( i in paths ) {
       zip.addFile(i.toString());
     }
