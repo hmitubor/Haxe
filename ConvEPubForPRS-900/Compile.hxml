@@ -1,0 +1,6 @@
+-cp ../Dropbox/Haxe/
+-main ConvEPub
+#-neko ConvEPub.n
+-cs xxx
+#-cpp xxxx
+#-debug
