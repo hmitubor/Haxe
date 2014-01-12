@@ -10,10 +10,13 @@ class BloomFilterTest {
     var args = Sys.args();
     if ( args.length < 1 ) {
       Sys.println("not enough arguments!");
+      Sys.println("command FILE M(=100) K(=3)");
       return;
     }
 
-    var bf = new BloomFilter(500, 3);
+    var m: Int = (args.length < 2) ? 100 : Std.parseInt(args[1]);
+    var k: Int = (args.length < 3) ? 3 : Std.parseInt(args[2]);
+    var bf = new BloomFilter(m, k);
     var mp = new Map<String, Bool>();
 
     Sys.println("file = " + args[0]);
