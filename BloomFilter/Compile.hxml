@@ -1,0 +1,7 @@
+-cp ../MyLib/
+-main BloomFilterTest
+-neko BloomFilterTest.n
+#-cs xxx
+#-cpp xxxx
+--no-traces
+#-debug
