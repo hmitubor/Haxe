@@ -3,10 +3,14 @@ package;
 import haxe.crypto.Md5;
 
 class BloomFilter {
-  var filter: Array<Bool>;
+  public var filter(get, null): Array<Bool>;
   var m: Int;
   var k: Int;
 
+  public function get_filter() {
+    return filter;
+  }
+  
   public static function main():Void {
     var m = 100;
     var k = 3;
