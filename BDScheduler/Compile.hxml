@@ -1,0 +1,9 @@
+-cp src
+-main BDScheduler
+-neko BDS.n
+-lib oauth
+-lib hxssl
+#-cs xxx
+#-cpp xxxx
+#--no-traces
+-debug
