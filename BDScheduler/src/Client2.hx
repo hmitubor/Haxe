@@ -27,19 +27,13 @@ class Client2 extends Client {
 	public override function request (uri:String, ?post:Bool = false, ?postData:Dynamic):String {
 		var req = new Request(version, uri, consumer, accessToken, post, postData);
 		if (version == V1) req.sign();
-		//return req.send();
-		var tmp = req.send();
-trace(tmp);
-		return tmp;
+		return req.send();
 	}
 
 	public function request_for_google (uri:String, ?post:Bool = false, ?postData:Dynamic):String {
 		var req = new Request2(version, uri, consumer, accessToken, post, postData);
 		if (version == V1) req.sign();
-		//return req.send();
-		var tmp = req.send();
-trace(tmp);
-		return tmp;
+		return req.send();
 	}
 	
 	public inline function requestJSONforGoogle (uri:String, ?post:Bool = false, ?postData:Dynamic):Dynamic {

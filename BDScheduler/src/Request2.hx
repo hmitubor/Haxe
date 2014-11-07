@@ -42,7 +42,6 @@ class Request2 extends Request {
 		}
 */
 		buf.add(data);
-trace(buf.toString());	
 		return buf.toString();
 	}
 
