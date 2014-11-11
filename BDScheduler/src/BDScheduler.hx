@@ -2,22 +2,32 @@ package;
 
 import oauth.Client;
 import oauth.Tokens;
-import Secret;
+import oauth.OAuth2;
+
+typedef Secret = {
+	var email: String;
+	var access: OAuth2AccessToken;
+	var refresh: RefreshToken;
+}
 
 class BDScheduler {
-	static var auth_url = "https://accounts.google.com/o/oauth2/auth";
-	static var token_url = "https://accounts.google.com/o/oauth2/token";
-	static var redirect_uris = "urn:ietf:wg:oauth:2.0:oob";
-	static var scope_uri = "https://www.googleapis.com/auth/calendar";
-//	static var auth_code = "4/7JAdiE4iq8XcPklnz6B8zs3V3RxzttsR66pBKQI7jvY.YiOKtADOBPobBrG_bnfDxpKqcx_YkgI";
+	static var secret_file	= "BDS_secret.json";
+	static var scope_uri	= "https://www.googleapis.com/auth/calendar";
+	static var oauth: Dynamic;
+	static var secret: Secret;
 
 	static function getAuthCode():String {
 	//CLIENT Open window to show user the authentication screen
-		var auth_url_ret = oauth.OAuth2.buildAuthUrl(auth_url, Secret.client_key, 
-				{ redirectUri:redirect_uris,
-					scope:scope_uri,
-					state:oauth.OAuth2.nonce() });
+		var auth_url_ret = OAuth2.buildAuthUrl(
+						oauth.installed.auth_uri, 
+						oauth.installed.client_id, 
+						{ redirectUri: oauth.installed.redirect_uris[0],
+								scope: scope_uri,
+								state: OAuth2.nonce() });
 		Sys.println(auth_url_ret);
+
+		Sys.print("your email: ");
+		secret.email = Sys.stdin().readLine();
 
 		Sys.print("auth_code : ");
 		return Sys.stdin().readLine();
@@ -25,14 +35,17 @@ class BDScheduler {
 
 	static function makeClientViaAccessToken(accessToken:String, refreshToken:String):Client2 {
 		var expires = 3600;
-		return MyOAuth2.connect(new oauth.Consumer(Secret.client_key, Secret.client_secret),
+		return MyOAuth2.connect(new oauth.Consumer(oauth.installed.client_id, oauth.installed.client_secret),
 					new OAuth2AccessToken(accessToken, expires),
 					new RefreshToken(refreshToken));
 	}
 
-	static function makeClientViaAuthCode(authCode:String):Client2 {
-		var consumer = MyOAuth2.connect(new oauth.Consumer(Secret.client_key, Secret.client_secret));
-		return consumer.getAccessToken2(token_url, authCode, redirect_uris);
+	static function makeClientViaAuthCode(auth_code:String):Client2 {
+		var consumer = MyOAuth2.connect(new oauth.Consumer(
+								oauth.installed.client_id,
+								oauth.installed.client_secret)
+						);
+		return consumer.getAccessToken2(oauth.installed.token_uri, auth_code, oauth.installed.redirect_uris[0]);
 	}
 
 	static function showToken(client:Client) {
@@ -181,17 +194,63 @@ class BDScheduler {
 		return "";
 	}
 
+	static function readToken(): Bool {
+		if ( !sys.FileSystem.exists(secret_file) ) {
+				return false;
+		}
+
+		var fi = sys.io.File.read(secret_file, false);
+		secret = haxe.Json.parse( fi.readAll().toString() );
+		fi.close();
+
+		//trace( secret );
+		return true;
+	}
+
+	static function writeToken(client: Client): Void {
+		var access_token: OAuth2AccessToken = cast(client.accessToken, OAuth2AccessToken);
+		secret = {email: secret.email,
+				  access: new OAuth2AccessToken(access_token.token, access_token.expires),
+				  refresh: new RefreshToken(client.refreshToken.token) };
+
+		var fo = sys.io.File.write(secret_file, false);
+		fo.writeString( haxe.Json.stringify(secret) );
+		fo.close();
+	}
+
+	static function readOAuthFile(): Bool {
+		var oauth_file = "BDS.json";
+		if ( !sys.FileSystem.exists(oauth_file) ) {
+				return false;
+		}
+
+		var fi = sys.io.File.read(oauth_file, false);
+		oauth = haxe.Json.parse( fi.readAll().toString() );
+		fi.close();
+
+		return true;
+	}
+
 	static function main():Void {
-//		var client = makeClientViaAuthCode( getAuthCode() );
 
-		var client = makeClientViaAccessToken(Secret.acc_token, Secret.ref_token);
-	
-		//SERVER Get a new access token if the old one has expired
-		client.refreshAccessToken(token_url);
+		if ( !readOAuthFile() ) {
+				Sys.println("error: no BDS.json found.");
+				return;
+		}
 
-		showToken( client );
+		var client = if ( readToken() ) {
+			makeClientViaAccessToken(secret.access.token, secret.refresh.token);
+		}
+		else {
+			makeClientViaAuthCode( getAuthCode() );
+		}
 
-		Sys.println("Please input schedule:");
+		client.refreshAccessToken(oauth.installed.token_uri);
+
+		//showToken( client );
+		writeToken( client );
+
+		Sys.println("\nPlease input schedule:");
 		var sches = Sys.stdin().readAll().toString();
 
 		var bc_name = getBCName(sches);
@@ -214,11 +273,12 @@ class BDScheduler {
 				Sys.println('  end_time: $end_time');
 				Sys.println('  location: $location');
 
-/*				trace(*/
-				client.requestJSONforGoogle("https://www.googleapis.com/calendar/v3/calendars/hmitubor@gmail.com/events"
-					+ "?key=" + Secret.client_key,
-					true,
-					'{
+				client.requestJSONforGoogle("https://www.googleapis.com/calendar/v3/calendars/"
+								+ secret.email 
+								+ "/events"
+								+ "?key=" + oauth.installed.client_id,
+								true,
+								'{
  "start": {
   $start_time
  },
@@ -227,31 +287,10 @@ class BDScheduler {
  },
  "location": "$location",
  "summary": "$bc_name"
-}') /*)*/;
+}');
 			}
 		}
 
 		return;
-
-		//GET request
-		trace(client.requestJSONforGoogle("https://www.googleapis.com/calendar/v3/calendars/hmitubor@gmail.com"));
-
-		//POST request
-		var start_time = DateTools.format(new Date(2014, 10, 3, 18, 00, 00), "%Y-%m-%dT%T+09:00");
-		var   end_time = DateTools.format(new Date(2014, 10, 3, 18, 30, 00), "%Y-%m-%dT%T+09:00");
-		
-		trace(client.requestJSONforGoogle("https://www.googleapis.com/calendar/v3/calendars/hmitubor@gmail.com/events"
-					+ "?key=" + Secret.client_key,
-					true,
-					'{
- "start": {
-  "dateTime": "$start_time"
- },
- "end": {
-  "dateTime": "$end_time"
- },
- "location": "三ッ堀 裕之",
- "summary": "HBC"
-}'));
-	}
+		}
 }
