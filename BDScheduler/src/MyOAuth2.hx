@@ -14,10 +14,10 @@ import oauth.Consumer;
 
 class MyOAuth2 extends OAuth2 {
 
-	public static function connect (consumer:Consumer, ?accessToken:OAuth2AccessToken, ?refreshToken:RefreshToken):Client2 {
-		var c = new Client2(V2, consumer);
-		c.accessToken = accessToken;
-		c.refreshToken = refreshToken;
-		return c;
-	}
+    public static function connect (consumer:Consumer, ?accessToken:OAuth2AccessToken, ?refreshToken:RefreshToken):Client2 {
+        var c = new Client2(V2, consumer);
+        c.accessToken = accessToken;
+        c.refreshToken = refreshToken;
+        return c;
+    }
 }
