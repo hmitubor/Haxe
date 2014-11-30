@@ -28,6 +28,7 @@ class ClubFactory {
 }
 
 interface Club {
+    public var name:String;
     public function getSeparater(): EReg;
     public function makeStartTime(item: String): String;
     public function makeEndTime(item: String): String;

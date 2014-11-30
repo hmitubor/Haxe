@@ -257,6 +257,7 @@ class BDScheduler {
                 var start_time = club.makeStartTime(item);
                 var   end_time = club.makeEndTime(item);
                 var   location = club.getLocation(item);
+                var    bc_name = club.name;
 
                 Sys.println('start_time: $start_time');
                 Sys.println('  end_time: $end_time');
@@ -275,7 +276,7 @@ class BDScheduler {
   $end_time
 },
 "location": "$location",
-"summary": "$club.name"
+"summary": "$bc_name"
 }');
             }
         }
