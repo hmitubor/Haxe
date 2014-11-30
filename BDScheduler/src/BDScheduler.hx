@@ -36,10 +36,9 @@ class BDScheduler {
     }
 
     static function makeClientViaAccessToken(accessToken:String, refreshToken:String):Client2 {
-        var expires = 3600;
         return MyOAuth2.connect(new oauth.Consumer(oauth.installed.client_id, oauth.installed.client_secret),
-                new OAuth2AccessToken(accessToken, expires),
-                new RefreshToken(refreshToken));
+                new OAuth2AccessToken(secret.access.token, secret.access.expires),
+                new RefreshToken(secret.refresh.token));
     }
 
     static function makeClientViaAuthCode(auth_code:String):Client2 {
@@ -182,20 +181,6 @@ class BDScheduler {
         return (parts.length > 1) ? parts[2] : "";
     }
 
-    static function getBCName(str: String): String {
-        var abc = ~/[0-9]+:[0-9]+/;
-        if (abc.match(str)) {
-            return "ABC";
-        }
-
-        var hbc = ~/[0-9]+時-[0-9]+時/;
-        if (hbc.match(str)) {
-            return "HBC";
-        }
-
-        return "";
-    }
-
     static function readToken(): Bool {
         if ( !sys.FileSystem.exists(secret_file) ) {
             return false;
@@ -205,7 +190,10 @@ class BDScheduler {
         secret = haxe.Json.parse( fi.readAll().toString() );
         fi.close();
 
-        //trace( secret );
+        email = secret.email;
+//        trace( secret.email );
+//        trace( secret.access.token );
+//        trace( secret.refresh.token );
         return true;
     }
 
@@ -254,8 +242,7 @@ class BDScheduler {
 
         Sys.println("\nPlease input schedule:");
         var sches = Sys.stdin().readAll().toString();
-        var bc_name = getBCName(sches);
-        var club = ClubFactory.create(bc_name);
+        var club = ClubFactory.create(sches);
         if ( club == null ) {
             Sys.println("error: unknown schedule input.");
             return;
@@ -281,15 +268,15 @@ class BDScheduler {
                         + "?key=" + oauth.installed.client_id,
                         true,
                         '{
-                            "start": {
-                                $start_time
-                            },
-                            "end": {
-                                $end_time
-                            },
-                            "location": "$location",
-                            "summary": "$bc_name"
-                        }');
+"start": {
+  $start_time
+},
+"end": {
+  $end_time
+},
+"location": "$location",
+"summary": "$club.name"
+}');
             }
         }
 

@@ -1,8 +1,22 @@
 package;
 
 class ClubFactory {
-    public static function create(name: String): Club {
-        return switch ( name ) {
+    public static function get_bc_name(sche: String): String {
+        // ABC
+        if (ClubABC.club_reg.match(sche)) {
+            return "ABC";
+        }
+
+        // HBC
+        if (ClubHBC.club_reg.match(sche)) {
+            return "HBC";
+        }
+
+        return "";
+    }
+
+    public static function create(sche: String): Club {
+        return switch ( get_bc_name(sche) ) {
             case "ABC": new ClubABC();
             case "HBC": new ClubHBC();
             default: {
@@ -20,8 +34,16 @@ interface Club {
     public function getLocation(item: String): String;
 }
 
-class ClubABC implements Club {
+class ClubBase {
+    public var name:String;
+    public static var club_reg:EReg;
+}
+
+class ClubABC extends ClubBase implements Club {
+    public static var club_reg = ~/[0-9]+:[0-9]+/;
+
     public function new() {
+        name = "ABC";
     }
 
     public function getSeparater(): EReg {
@@ -97,8 +119,11 @@ class ClubABC implements Club {
     }
 }
 
-class ClubHBC implements Club {
+class ClubHBC extends ClubBase implements Club {
+    public static var club_reg = ~/[0-9]+時-[0-9]+時/;
+
     public function new() {
+        name = "HBC";
     }
 
     public function getSeparater(): EReg {
