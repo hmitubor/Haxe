@@ -38,6 +38,12 @@ interface Club {
 class ClubBase {
     public var name:String;
     public static var club_reg:EReg;
+
+    private function getScheduleYear(month: Int): Int {
+        return (month < Date.now().getMonth())
+            ? Date.now().getFullYear() + 1
+            : Date.now().getFullYear();
+    }
 }
 
 class ClubABC extends ClubBase implements Club {
@@ -71,14 +77,14 @@ class ClubABC extends ClubBase implements Club {
             format = "%Y-%m-%d";
         }
 
+        var month   = Std.parseInt(date.matched(1)) - 1;
+        var day     = Std.parseInt(date.matched(2));
+        var year    = getScheduleYear(month);
+        var hour    = (time.match(item)) ? Std.parseInt(time.matched(1)) : 0;
+        var min     = (time.match(item)) ? Std.parseInt(time.matched(2)) : 0;
+ 
         return jsonItem + '"'
-            + DateTools.format(new Date(Date.now().getFullYear(),
-                        Std.parseInt(date.matched(1))-1,
-                        Std.parseInt(date.matched(2)),
-                        (time.match(item)) ? Std.parseInt(time.matched(1)) : 0,
-                        (time.match(item)) ? Std.parseInt(time.matched(2)) : 0,
-                        00),
-                    format)
+            + DateTools.format(new Date(year, month, day, hour, min, 00), format)
             + '"';
     }
 
@@ -102,14 +108,14 @@ class ClubABC extends ClubBase implements Club {
             format = "%Y-%m-%d";
         }
 
+        var month   = Std.parseInt(date.matched(1)) - 1;
+        var day     = Std.parseInt(date.matched(2));
+        var year    = getScheduleYear(month);
+        var hour    = (time.match(item)) ? Std.parseInt(time.matched(3)) : 0;
+        var min     = (time.match(item)) ? Std.parseInt(time.matched(4)) : 0;
+        
         return jsonItem + '"'
-            + DateTools.format(new Date(Date.now().getFullYear(),
-                        Std.parseInt(date.matched(1))-1,
-                        Std.parseInt(date.matched(2)),
-                        (time.match(item)) ? Std.parseInt(time.matched(3)) : 0,
-                        (time.match(item)) ? Std.parseInt(time.matched(4)) : 0,
-                        00),
-                    format)
+            + DateTools.format(new Date(year, month, day, hour, min, 00), format)
             + '"';
     }
 
@@ -145,14 +151,14 @@ class ClubHBC extends ClubBase implements Club {
             format = "%Y-%m-%d";
         }
 
-        return jsonItem + '"'
-            + DateTools.format(new Date(Date.now().getFullYear(),
-                        Std.parseInt(date.matched(1))-1,
-                        Std.parseInt(date.matched(2)),
-                        (time.match(item)) ? Std.parseInt(time.matched(1)) : 0,
-                        00,
-                        00),
-                    format)
+        var month   = Std.parseInt(date.matched(1)) - 1;
+        var day     = Std.parseInt(date.matched(2));
+        var year    = getScheduleYear(month);
+        var hour    = (time.match(item)) ? Std.parseInt(time.matched(1)) : 0;
+        var min     = 00;
+ 
+         return jsonItem + '"'
+            + DateTools.format(new Date(year, month, day, hour, min, 00), format)
             + '"';
     }
 
@@ -170,15 +176,15 @@ class ClubHBC extends ClubBase implements Club {
             format = "%Y-%m-%d";
         }
 
-        return jsonItem + '"'
-            + DateTools.format(new Date(Date.now().getFullYear(),
-                        Std.parseInt(date.matched(1))-1,
-                        Std.parseInt(date.matched(2)),
-                        (time.match(item)) ? Std.parseInt(time.matched(2)) : 0,
-                        00,
-                        00),
-                    format)
-            + '"';
+        var month   = Std.parseInt(date.matched(1)) - 1;
+        var day     = Std.parseInt(date.matched(2));
+        var year    = getScheduleYear(month);
+        var hour    = (time.match(item)) ? Std.parseInt(time.matched(2)) : 0;
+        var min     = 00;
+ 
+         return jsonItem + '"'
+            + DateTools.format(new Date(year, month, day, hour, min, 00), format)
+           + '"';
     }
 
     public function getLocation(item: String): String {
