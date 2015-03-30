@@ -122,6 +122,7 @@ class BDScheduler {
             Sys.println("error: unknown schedule input.");
             return;
         }
+        Sys.println(' club_name: ' + club.name);
 
         var sp = club.getSeparater();
         var items = sp.split(sches);
