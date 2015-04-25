@@ -202,7 +202,7 @@ class ClubHBC extends ClubBase implements Club {
 }
 
 class ClubSDY extends ClubBase implements Club {
-    public static var club_reg = ~/[0-9]+月[0-9]+日\(金\t[0-9]+:[0-9]+～[0-9]+:[0-9]+\t/;
+    public static var club_reg = ~/[0-9]+月[0-9]+日\(金[ \t]+[0-9]+:[0-9]+～[0-9]+:[0-9]+[ \t]+/;
 
     public function new() {
         name = "水道山BC";
